@@ -74,6 +74,8 @@ class Window(arcade.Window):
         self.enemy_list = arcade.SpriteList()
         self.player = Player()
         self.score = 0
+        self.end = ("You won!")
+        self.end2 = ("Congratulations!")
 
     def setup(self):
         '''
@@ -88,12 +90,16 @@ class Window(arcade.Window):
     def update(self, delta_time):
         self.bullet_list.update()
         for e in self.enemy_list:
-            # check for collision
-            # for every bullet that hits, decrease the hp and then see if it dies
-            # increase the score
-            # e.kill() will remove the enemy sprite from the game
-            # the pass statement is a placeholder. Remove line 81 when you add your code
-            pass
+            damage = arcade.check_for_collision_with_list(e, self.bullet_list)
+            for d in damage:
+                e.hp -= d.damage
+                d.kill()
+                if e.hp <= 0:
+                    self.score += KILL_SCORE
+                    e.kill()
+                else:
+                    self.score += HIT_SCORE
+       
 
     def on_draw(self):
         arcade.start_render()
@@ -101,6 +107,10 @@ class Window(arcade.Window):
         self.player.draw()
         self.bullet_list.draw()
         self.enemy_list.draw()
+
+        if self.score == 950:
+            arcade.draw_text(str(self.end), 320 , SCREEN_HEIGHT - 60, open_color.white, 16)
+            arcade.draw_text(str(self.end2), 320 , SCREEN_HEIGHT - 80, open_color.white, 16)
 
     def on_mouse_motion(self, x, y, dx, dy):
         '''
@@ -112,7 +122,11 @@ class Window(arcade.Window):
         if button == arcade.MOUSE_BUTTON_LEFT:
             #fire a bullet
             #the pass statement is a placeholder. Remove line 97 when you add your code
-            pass
+            x = self.player.center_x
+            y = self.player.center_y + 15
+            bullet = Bullet((x,y),(0,10),BULLET_DAMAGE)
+            self.bullet_list.append(bullet)
+
 
 def main():
     window = Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
